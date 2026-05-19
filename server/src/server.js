@@ -1,7 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config({
+  path: require("path").join(__dirname, "../.env"),
+  quiet: true,
+});
 const pool = require("./config/db");
-require("dotenv").config();
 
 const app = express();
 const authRoutes = require("./routes/authRoutes");
