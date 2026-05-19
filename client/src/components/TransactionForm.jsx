@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { useDispatch } from "react-redux";
 
+import toast from "react-hot-toast";
+
 import {
   addTransaction,
   getSummary,
@@ -31,19 +33,29 @@ const TransactionForm = () => {
 
   const handleSubmit = async (e) => {
 
-    e.preventDefault();
+  e.preventDefault();
 
-    await dispatch(addTransaction(formData));
+  if (
+    !formData.title ||
+    !formData.amount ||
+    !formData.category
+  ) {
+    return toast.error("Please fill all fields");
+  }
 
-    dispatch(getSummary());
+  await dispatch(addTransaction(formData));
 
-    setFormData({
-      title: "",
-      amount: "",
-      type: "expense",
-      category: "",
-    });
-  };
+  dispatch(getSummary());
+
+  toast.success("Transaction added");
+
+  setFormData({
+    title: "",
+    amount: "",
+    type: "expense",
+    category: "",
+  });
+};
 
 
   return (

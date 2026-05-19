@@ -6,6 +6,7 @@ import { loginUser } from "../features/auth/authSlice";
 
 import { Link, useNavigate } from "react-router-dom";
 
+import toast from "react-hot-toast";
 
 const Login = () => {
 
@@ -39,10 +40,15 @@ const Login = () => {
 
 
   useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+
+  if (user) {
+
+    toast.success("Login successful");
+
+    navigate("/");
+  }
+
+}, [user, navigate]);
 
 
   return (

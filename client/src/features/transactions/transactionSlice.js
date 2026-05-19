@@ -37,6 +37,20 @@ export const addTransaction = createAsyncThunk(
   },
 );
 
+// UPDATE TRANSACTION
+export const updateTransaction = createAsyncThunk(
+  "transactions/update",
+  async ({ id, updatedData }, thunkAPI) => {
+    try {
+      const response = await API.put(`/transactions/${id}`, updatedData);
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.message);
+    }
+  },
+);
+
 // DELETE TRANSACTION
 export const deleteTransaction = createAsyncThunk(
   "transactions/delete",
@@ -93,6 +107,13 @@ const transactionSlice = createSlice({
       // ADD
       .addCase(addTransaction.fulfilled, (state, action) => {
         state.transactions.unshift(action.payload);
+      })
+
+      // UPDATE
+      .addCase(updateTransaction.fulfilled, (state, action) => {
+        state.transactions = state.transactions.map((transaction) =>
+          transaction.id === action.payload.id ? action.payload : transaction,
+        );
       })
 
       // DELETE
