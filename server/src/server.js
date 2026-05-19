@@ -8,11 +8,13 @@ const pool = require("./config/db");
 
 const app = express();
 const authRoutes = require("./routes/authRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 pool
   .connect()
