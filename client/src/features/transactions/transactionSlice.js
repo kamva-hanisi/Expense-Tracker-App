@@ -7,6 +7,38 @@ const initialState = {
   summary: {},
   loading: false,
   error: null,
+  filteredTransactions: [],
+  searchTerm: "",
+  selectedType: "all",
+  selectedCategory: "all",
+};
+
+const applyTransactionFilters = (state) => {
+  let filtered = [...state.transactions];
+
+  if (state.searchTerm.trim()) {
+    const search = state.searchTerm.toLowerCase();
+
+    filtered = filtered.filter(
+      (transaction) =>
+        transaction.title?.toLowerCase().includes(search) ||
+        transaction.category?.toLowerCase().includes(search),
+    );
+  }
+
+  if (state.selectedType !== "all") {
+    filtered = filtered.filter(
+      (transaction) => transaction.type === state.selectedType,
+    );
+  }
+
+  if (state.selectedCategory !== "all") {
+    filtered = filtered.filter(
+      (transaction) => transaction.category === state.selectedCategory,
+    );
+  }
+
+  state.filteredTransactions = filtered;
 };
 
 // GET TRANSACTIONS
@@ -84,7 +116,33 @@ const transactionSlice = createSlice({
 
   initialState,
 
-  reducers: {},
+  reducers: {
+    setSearchTerm: (state, action) => {
+      state.searchTerm = action.payload;
+    },
+
+    setSelectedType: (state, action) => {
+      state.selectedType = action.payload;
+    },
+
+    setSelectedCategory: (state, action) => {
+      state.selectedCategory = action.payload;
+    },
+
+    toggleTransactionComplete: (state, action) => {
+      state.transactions = state.transactions.map((transaction) =>
+        transaction.id === action.payload
+          ? { ...transaction, completed: !transaction.completed }
+          : transaction,
+      );
+
+      applyTransactionFilters(state);
+    },
+
+    filterTransactions: (state) => {
+      applyTransactionFilters(state);
+    },
+  },
 
   extraReducers: (builder) => {
     builder
@@ -96,7 +154,13 @@ const transactionSlice = createSlice({
 
       .addCase(getTransactions.fulfilled, (state, action) => {
         state.loading = false;
-        state.transactions = action.payload;
+
+        state.transactions = action.payload.map((transaction) => ({
+          ...transaction,
+          completed: Boolean(transaction.completed),
+        }));
+
+        applyTransactionFilters(state);
       })
 
       .addCase(getTransactions.rejected, (state, action) => {
@@ -106,14 +170,26 @@ const transactionSlice = createSlice({
 
       // ADD
       .addCase(addTransaction.fulfilled, (state, action) => {
-        state.transactions.unshift(action.payload);
+        state.transactions.unshift({
+          ...action.payload,
+          completed: false,
+        });
+
+        applyTransactionFilters(state);
       })
 
       // UPDATE
       .addCase(updateTransaction.fulfilled, (state, action) => {
         state.transactions = state.transactions.map((transaction) =>
-          transaction.id === action.payload.id ? action.payload : transaction,
+          transaction.id === action.payload.id
+            ? {
+                ...action.payload,
+                completed: Boolean(transaction.completed),
+              }
+            : transaction,
         );
+
+        applyTransactionFilters(state);
       })
 
       // DELETE
@@ -121,6 +197,8 @@ const transactionSlice = createSlice({
         state.transactions = state.transactions.filter(
           (item) => item.id !== action.payload,
         );
+
+        applyTransactionFilters(state);
       })
 
       // SUMMARY
@@ -129,5 +207,13 @@ const transactionSlice = createSlice({
       });
   },
 });
+
+export const {
+  setSearchTerm,
+  setSelectedType,
+  setSelectedCategory,
+  toggleTransactionComplete,
+  filterTransactions,
+} = transactionSlice.actions;
 
 export default transactionSlice.reducer;
