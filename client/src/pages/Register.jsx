@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { registerUser } from "../features/auth/authSlice";
+import Footer from "../components/Footer";
 
 const inputClass =
   "w-full border border-[#d8dfd6] bg-[#fbfcfa] p-3 rounded-md mb-4 outline-none focus:border-[#47745d] focus:ring-2 focus:ring-[#47745d]/15";
@@ -39,56 +40,60 @@ const Register = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f7f4] px-4 text-[#202722]">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg border border-[#dfe6dc] shadow-sm w-full max-w-md"
-      >
-        <h2 className="text-3xl font-semibold mb-6 text-center">Register</h2>
-
-        {error && <p className="text-[#8a3b2f] mb-4">{error}</p>}
-
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-[#315c48] hover:bg-[#274a3a] text-white p-3 rounded-md transition"
+    <div className="min-h-screen flex flex-col bg-[#f5f7f4] text-[#202722]">
+      <main className="flex flex-1 items-center justify-center px-4 py-10">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-lg border border-[#dfe6dc] shadow-sm w-full max-w-md"
         >
-          {loading ? "Loading..." : "Register"}
-        </button>
+          <h2 className="text-3xl font-semibold mb-6 text-center">Register</h2>
 
-        <p className="mt-4 text-center text-[#66736a]">
-          Already have an account?
-          <Link to="/login" className="text-[#315c48] font-medium ml-2">
-            Login
-          </Link>
-        </p>
-      </form>
+          {error && <p className="text-[#8a3b2f] mb-4">{error}</p>}
+
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            className={inputClass}
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className={inputClass}
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className={inputClass}
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-[#315c48] hover:bg-[#274a3a] text-white p-3 rounded-md transition"
+          >
+            {loading ? "Loading..." : "Register"}
+          </button>
+
+          <p className="mt-4 text-center text-[#66736a]">
+            Already have an account?
+            <Link to="/login" className="text-[#315c48] font-medium ml-2">
+              Login
+            </Link>
+          </p>
+        </form>
+      </main>
+
+      <Footer />
     </div>
   );
 };

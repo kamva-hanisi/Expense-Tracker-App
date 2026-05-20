@@ -14,6 +14,8 @@ import Charts from "../components/Charts";
 
 import FilterBar from "../components/FilterBar";
 
+import Footer from "../components/Footer";
+
 import {
   getTransactions,
   getSummary,
@@ -29,10 +31,10 @@ const Dashboard = () => {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-[#f5f7f4] text-[#202722]">
+    <div className="min-h-screen bg-[#f5f7f4] text-[#202722] flex flex-col">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 flex-1 w-full">
         <SummaryCards />
 
         <div className="mt-6">
@@ -53,6 +55,8 @@ const Dashboard = () => {
           <Charts />
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };
