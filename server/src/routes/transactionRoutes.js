@@ -18,9 +18,7 @@ router.get("/summary", protect, getSummary);
 
 // UPDATE + DELETE
 router
-  .route("/")
-  .post(protect, addTransaction)
-  .get(protect, getTransactions)
+  .route("/:id")
   .put(protect, updateTransaction)
   .delete(protect, deleteTransaction);
 

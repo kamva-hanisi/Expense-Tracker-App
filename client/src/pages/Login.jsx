@@ -1,28 +1,22 @@
 import { useState, useEffect } from "react";
-
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import { loginUser } from "../features/auth/authSlice";
 
-import { Link, useNavigate } from "react-router-dom";
-
-import toast from "react-hot-toast";
+const inputClass =
+  "w-full border border-[#d8dfd6] bg-[#fbfcfa] p-3 rounded-md mb-4 outline-none focus:border-[#47745d] focus:ring-2 focus:ring-[#47745d]/15";
 
 const Login = () => {
-
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
-
-  const { user, loading, error } = useSelector(
-    (state) => state.auth
-  );
+  const { user, loading, error } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
 
   const handleChange = (e) => {
     setFormData({
@@ -31,43 +25,27 @@ const Login = () => {
     });
   };
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
-
     dispatch(loginUser(formData));
   };
 
-
   useEffect(() => {
-
-  if (user) {
-
-    toast.success("Login successful");
-
-    navigate("/");
-  }
-
-}, [user, navigate]);
-
+    if (user) {
+      toast.success("Login successful");
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f7f4] px-4 text-[#202722]">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md"
+        className="bg-white p-8 rounded-lg border border-[#dfe6dc] shadow-sm w-full max-w-md"
       >
+        <h2 className="text-3xl font-semibold mb-6 text-center">Login</h2>
 
-        <h2 className="text-3xl font-bold mb-6 text-center">
-          Login
-        </h2>
-
-        {error && (
-          <p className="text-red-500 mb-4">
-            {error}
-          </p>
-        )}
+        {error && <p className="text-[#8a3b2f] mb-4">{error}</p>}
 
         <input
           type="email"
@@ -75,7 +53,7 @@ const Login = () => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full border p-3 rounded-lg mb-4"
+          className={inputClass}
         />
 
         <input
@@ -84,28 +62,23 @@ const Login = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className="w-full border p-3 rounded-lg mb-4"
+          className={inputClass}
         />
 
         <button
           type="submit"
-          className="w-full bg-black text-white p-3 rounded-lg"
+          className="w-full bg-[#315c48] hover:bg-[#274a3a] text-white p-3 rounded-md transition"
         >
           {loading ? "Loading..." : "Login"}
         </button>
 
-        <p className="mt-4 text-center">
+        <p className="mt-4 text-center text-[#66736a]">
           Don't have an account?
-          <Link
-            to="/register"
-            className="text-blue-500 ml-2"
-          >
+          <Link to="/register" className="text-[#315c48] font-medium ml-2">
             Register
           </Link>
         </p>
-
       </form>
-
     </div>
   );
 };

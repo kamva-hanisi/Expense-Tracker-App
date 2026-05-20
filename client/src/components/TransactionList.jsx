@@ -1,11 +1,8 @@
 import { useState } from "react";
-
-import EditTransactionModal from "./EditTransactionModal";
-
 import { useDispatch, useSelector } from "react-redux";
-
 import toast from "react-hot-toast";
 
+import EditTransactionModal from "./EditTransactionModal";
 import {
   deleteTransaction,
   getSummary,
@@ -13,59 +10,65 @@ import {
 
 const TransactionList = () => {
   const dispatch = useDispatch();
-
   const { transactions } = useSelector((state) => state.transactions);
-
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+  const formatMoney = (value) =>
+    Number(value || 0).toLocaleString("en-ZA", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
   const handleDelete = async (id) => {
     await dispatch(deleteTransaction(id));
-
     dispatch(getSummary());
-
     toast.success("Transaction deleted");
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow">
-      <h2 className="text-2xl font-bold mb-6">Transactions</h2>
+    <div className="bg-white p-6 rounded-lg border border-[#dfe6dc] shadow-sm">
+      <h2 className="text-2xl font-semibold mb-6 text-[#202722]">
+        Transactions
+      </h2>
 
       <div className="space-y-4">
         {transactions.length === 0 ? (
-          <p className="text-gray-500">No transactions yet</p>
+          <p className="text-[#66736a]">No transactions yet</p>
         ) : (
           transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex justify-between items-center border p-4 rounded-xl"
+              className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border border-[#dfe6dc] bg-[#fbfcfa] p-4 rounded-lg"
             >
               <div>
-                <h3 className="font-bold text-lg">{transaction.title}</h3>
+                <h3 className="font-semibold text-lg text-[#202722]">
+                  {transaction.title}
+                </h3>
 
-                <p className="text-gray-500">{transaction.category}</p>
+                <p className="text-[#66736a]">{transaction.category}</p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:justify-end">
                 <p
-                  className={`font-bold ${
+                  className={`font-semibold min-w-24 ${
                     transaction.type === "income"
-                      ? "text-green-500"
-                      : "text-red-500"
+                      ? "text-[#2f6a4a]"
+                      : "text-[#8a3b2f]"
                   }`}
                 >
-                  R {transaction.amount}
+                  R {formatMoney(transaction.amount)}
                 </p>
 
                 <button
                   onClick={() => setSelectedTransaction(transaction)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded-lg"
+                  className="bg-[#e7eee9] hover:bg-[#d9e5dd] text-[#315c48] px-3 py-1.5 rounded-md border border-[#c8d7ce] transition"
                 >
                   Edit
                 </button>
 
                 <button
                   onClick={() => handleDelete(transaction.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-lg"
+                  className="bg-[#f7e8e4] hover:bg-[#efd9d3] text-[#7c3529] px-3 py-1.5 rounded-md border border-[#ead0ca] transition"
                 >
                   Delete
                 </button>
@@ -74,6 +77,7 @@ const TransactionList = () => {
           ))
         )}
       </div>
+
       {selectedTransaction && (
         <EditTransactionModal
           transaction={selectedTransaction}

@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-
 import {
   PieChart,
   Pie,
@@ -8,12 +7,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-
 const Charts = () => {
-
-  const { summary } = useSelector(
-    (state) => state.transactions
-  );
+  const { summary } = useSelector((state) => state.transactions);
 
   const data = [
     {
@@ -26,46 +21,27 @@ const Charts = () => {
     },
   ];
 
-  const COLORS = ["#22c55e", "#ef4444"];
-
+  const COLORS = ["#4f8a66", "#b76a5b"];
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow">
-
-      <h2 className="text-2xl font-bold mb-6">
+    <div className="bg-white p-6 rounded-lg border border-[#dfe6dc] shadow-sm">
+      <h2 className="text-2xl font-semibold mb-6 text-[#202722]">
         Financial Overview
       </h2>
 
       <div className="w-full h-[400px]">
-
         <ResponsiveContainer>
-
           <PieChart>
-
-            <Pie
-              data={data}
-              dataKey="value"
-              outerRadius={140}
-              label
-            >
-
+            <Pie data={data} dataKey="value" outerRadius={140} label>
               {data.map((entry, index) => (
-                <Cell
-                  key={index}
-                  fill={COLORS[index % COLORS.length]}
-                />
+                <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
               ))}
-
             </Pie>
 
             <Tooltip />
-
           </PieChart>
-
         </ResponsiveContainer>
-
       </div>
-
     </div>
   );
 };
