@@ -12,11 +12,16 @@ if (missingEnvVars.length > 0) {
   );
 }
 
-const ssl =
+const sslEnabled =
   process.env.DB_SSL === "true" ||
-  (process.env.NODE_ENV === "production" && process.env.DB_SSL !== "false")
-    ? { rejectUnauthorized: false }
-    : false;
+  (process.env.NODE_ENV === "production" && process.env.DB_SSL !== "false");
+
+const ssl = sslEnabled
+  ? {
+      rejectUnauthorized:
+        process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false",
+    }
+  : false;
 
 const pool = new Pool(
   useConnectionString

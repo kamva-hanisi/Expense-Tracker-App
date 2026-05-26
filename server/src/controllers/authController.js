@@ -1,6 +1,7 @@
 const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { jwtSecret } = require("../config/auth");
 
 // REGISTER USER
 const registerUser = async (req, res) => {
@@ -44,7 +45,7 @@ const registerUser = async (req, res) => {
       {
         id: newUser.rows[0].id,
       },
-      process.env.JWT_SECRET,
+      jwtSecret,
       {
         expiresIn: "7d",
       },
@@ -100,7 +101,7 @@ const loginUser = async (req, res) => {
       {
         id: user.rows[0].id,
       },
-      process.env.JWT_SECRET,
+      jwtSecret,
       {
         expiresIn: "7d",
       },

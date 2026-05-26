@@ -79,7 +79,7 @@ Deploy this as three Render resources:
      - `DATABASE_URL`: use the Render PostgreSQL internal connection string
      - `DB_SSL`: `true`
      - `JWT_SECRET`: use a long random secret
-     - `CLIENT_URL`: your deployed frontend URL, for example `https://your-client.onrender.com`
+     - `CLIENT_URL`: `https://expense-tracker-client-0ndu.onrender.com`
 
 3. **Frontend static site**
    - Type: Static Site
@@ -87,7 +87,7 @@ Deploy this as three Render resources:
    - Build Command: `npm install && npm run build`
    - Publish Directory: `dist`
    - Environment variables:
-     - `VITE_API_URL`: your backend API URL with `/api`, for example `https://your-api.onrender.com/api`
+     - `VITE_API_URL`: `https://expense-tracker-app-pdrv.onrender.com/api`
 
 After setting `CLIENT_URL` or `VITE_API_URL`, redeploy the affected Render service so the new values are used.
 
