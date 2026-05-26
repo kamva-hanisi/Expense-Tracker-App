@@ -2,6 +2,7 @@ const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/auth");
+const tables = require("../config/tables");
 
 // REGISTER USER
 const registerUser = async (req, res) => {
@@ -17,7 +18,7 @@ const registerUser = async (req, res) => {
 
     // Check existing user
     const userExists = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
+      `SELECT * FROM ${tables.users} WHERE email = $1`,
       [email],
     );
 
@@ -34,7 +35,7 @@ const registerUser = async (req, res) => {
 
     // Insert user
     const newUser = await pool.query(
-      `INSERT INTO users (username, email, password)
+      `INSERT INTO ${tables.users} (username, email, password)
        VALUES ($1, $2, $3)
        RETURNING id, username, email`,
       [username, email, hashedPassword],
@@ -77,9 +78,10 @@ const loginUser = async (req, res) => {
     }
 
     // Find user
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const user = await pool.query(
+      `SELECT * FROM ${tables.users} WHERE email = $1`,
+      [email],
+    );
 
     if (user.rows.length === 0) {
       return res.status(400).json({

@@ -68,7 +68,7 @@ Deploy this as three Render resources:
 1. **PostgreSQL database**
    - Create a new Render PostgreSQL database.
    - Connect to it with Beekeeper Studio using the Render external database connection details.
-   - Create your `users` and `transactions` tables in Beekeeper.
+   - Create your `expense_users` and `expense_transactions` tables in Beekeeper.
 
 2. **Backend web service**
    - Type: Web Service

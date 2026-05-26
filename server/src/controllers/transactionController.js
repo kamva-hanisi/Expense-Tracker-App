@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const tables = require("../config/tables");
 
 // ADD TRANSACTION
 const addTransaction = async (req, res) => {
@@ -17,7 +18,7 @@ const addTransaction = async (req, res) => {
     // Insert transaction
     const newTransaction = await pool.query(
       `
-      INSERT INTO transactions
+      INSERT INTO ${tables.transactions}
       (user_id, title, amount, type, category)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
@@ -43,7 +44,7 @@ const getTransactions = async (req, res) => {
     const transactions = await pool.query(
       `
       SELECT *
-      FROM transactions
+      FROM ${tables.transactions}
       WHERE user_id = $1
       ORDER BY created_at DESC
       `,
@@ -71,7 +72,7 @@ const deleteTransaction = async (req, res) => {
     const transaction = await pool.query(
       `
       SELECT *
-      FROM transactions
+      FROM ${tables.transactions}
       WHERE id = $1 AND user_id = $2
       `,
       [id, userId],
@@ -86,7 +87,7 @@ const deleteTransaction = async (req, res) => {
     // Delete
     await pool.query(
       `
-      DELETE FROM transactions
+      DELETE FROM ${tables.transactions}
       WHERE id = $1
       `,
       [id],
@@ -117,7 +118,7 @@ const updateTransaction = async (req, res) => {
     const transaction = await pool.query(
       `
       SELECT *
-      FROM transactions
+      FROM ${tables.transactions}
       WHERE id = $1 AND user_id = $2
       `,
       [id, userId],
@@ -132,7 +133,7 @@ const updateTransaction = async (req, res) => {
     // Update
     const updatedTransaction = await pool.query(
       `
-      UPDATE transactions
+      UPDATE ${tables.transactions}
       SET title = $1,
           amount = $2,
           type = $3,
@@ -163,7 +164,7 @@ const getSummary = async (req, res) => {
       SELECT
         type,
         SUM(amount) as total
-      FROM transactions
+      FROM ${tables.transactions}
       WHERE user_id = $1
       GROUP BY type
       `,
