@@ -67,33 +67,8 @@ Deploy this as three Render resources:
 
 1. **PostgreSQL database**
    - Create a new Render PostgreSQL database.
-   - Connect to it with Beekeeper Studio using the Render external database connection details.
-   - Create your `expense_users` and `expense_transactions` tables in Beekeeper.
+   - Connect to it with Beekeeper Studio using the Render external database connection 
+     - `Live Demo`: `https://expense-tracker-client-0ndu.onrender.com`
 
-2. **Backend web service**
-   - Type: Web Service
-   - Root Directory: `server`
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-   - Environment variables:
-     - `DATABASE_URL`: use the Render PostgreSQL internal connection string
-     - `DB_SSL`: `true`
-     - `JWT_SECRET`: use a long random secret
-     - `CLIENT_URL`: `https://expense-tracker-client-0ndu.onrender.com`
-
-3. **Frontend static site**
-   - Type: Static Site
-   - Root Directory: `client`
-   - Build Command: `npm install && npm run build`
-   - Publish Directory: `dist`
-   - Environment variables:
-     - `VITE_API_URL`: `https://expense-tracker-app-pdrv.onrender.com/api`
-
-After setting `CLIENT_URL` or `VITE_API_URL`, redeploy the affected Render service so the new values are used.
-
-The backend works in both environments:
-
-- Localhost: use `DB_USER`, `DB_HOST`, `DB_NAME`, `DB_PASSWORD`, and `DB_PORT` from `server/.env`.
-- Render: use `DATABASE_URL` and `DB_SSL=true`.
 
 Built by **Kamva Hanisi**.
