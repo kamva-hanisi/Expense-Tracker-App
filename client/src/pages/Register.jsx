@@ -19,6 +19,7 @@ const Register = () => {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -69,13 +70,23 @@ const Register = () => {
           />
 
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             className={inputClass}
           />
+
+          <label className="mb-4 flex items-center gap-2 text-sm text-[#4f5f54]">
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={(e) => setShowPassword(e.target.checked)}
+              className="h-4 w-4 accent-[#315c48]"
+            />
+            Show password
+          </label>
 
           <button
             type="submit"
