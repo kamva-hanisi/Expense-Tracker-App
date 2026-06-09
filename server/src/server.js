@@ -11,7 +11,15 @@ const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 
 const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(",").map((origin) => origin.trim())
+  ? process.env.CLIENT_URL.split(",").map((origin) => {
+      const trimmedOrigin = origin.trim();
+
+      try {
+        return new URL(trimmedOrigin).origin;
+      } catch {
+        return trimmedOrigin;
+      }
+    })
   : true;
 
 app.use(cors({ origin: allowedOrigins }));
