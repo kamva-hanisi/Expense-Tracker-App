@@ -22,7 +22,21 @@ const allowedOrigins = process.env.CLIENT_URL
     })
   : true;
 
-app.use(cors({ origin: allowedOrigins }));
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins === true || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`Origin not allowed by CORS: ${origin}`));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
