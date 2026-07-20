@@ -68,7 +68,7 @@ Deploy this as three Render resources:
 1. **PostgreSQL database**
    - Create a new Render PostgreSQL database.
    - Connect to it with Beekeeper Studio using the Render external database connection 
-     - `Live Demo`: `https://expense-tracker-client-0ndu.onrender.com`
+     - `Live Demo`: https://kamva-hanisi.github.io/Expense-Tracker-App/
 
 
 Built by **Kamva Hanisi**.
