@@ -11,13 +11,16 @@ import "./index.css";
 
 import { store } from "./app/store";
 
-import { Toaster } from "react-hot-toast";
+const root = document.getElementById("root");
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+if (!root) {
+  throw new Error("Root element not found");
+}
+
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <Provider store={store}>
       <HashRouter>
-        <Toaster position="top-right" />
         <App />
       </HashRouter>
     </Provider>

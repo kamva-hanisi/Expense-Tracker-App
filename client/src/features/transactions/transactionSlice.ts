@@ -1,8 +1,46 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { AxiosError } from "axios";
 
 import API from "../../services/api";
 
-const initialState = {
+export type TransactionType = "all" | "income" | "expense";
+
+export type Transaction = {
+  id: number | string;
+  title?: string;
+  category?: string;
+  type?: Exclude<TransactionType, "all"> | string;
+  completed?: boolean;
+  [key: string]: unknown;
+};
+
+type TransactionSummary = Record<string, unknown>;
+
+type TransactionPayload = Omit<Transaction, "id">;
+
+type UpdateTransactionPayload = {
+  id: Transaction["id"];
+  updatedData: Partial<Transaction>;
+};
+
+type TransactionsState = {
+  transactions: Transaction[];
+  summary: TransactionSummary;
+  loading: boolean;
+  error: string | null;
+  filteredTransactions: Transaction[];
+  searchTerm: string;
+  selectedType: TransactionType;
+  selectedCategory: string;
+};
+
+const getErrorMessage = (error: unknown) => {
+  const axiosError = error as AxiosError<{ message?: string }>;
+
+  return axiosError.response?.data?.message ?? "Something went wrong";
+};
+
+const initialState: TransactionsState = {
   transactions: [],
   summary: {},
   loading: false,
@@ -13,7 +51,7 @@ const initialState = {
   selectedCategory: "all",
 };
 
-const applyTransactionFilters = (state) => {
+const applyTransactionFilters = (state: TransactionsState) => {
   let filtered = [...state.transactions];
 
   if (state.searchTerm.trim()) {
@@ -42,7 +80,7 @@ const applyTransactionFilters = (state) => {
 };
 
 // GET TRANSACTIONS
-export const getTransactions = createAsyncThunk(
+export const getTransactions = createAsyncThunk<Transaction[], void>(
   "transactions/getAll",
   async (_, thunkAPI) => {
     try {
@@ -50,55 +88,55 @@ export const getTransactions = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
 
 // ADD TRANSACTION
-export const addTransaction = createAsyncThunk(
+export const addTransaction = createAsyncThunk<Transaction, TransactionPayload>(
   "transactions/add",
-  async (transactionData, thunkAPI) => {
+  async (transactionData: TransactionPayload, thunkAPI) => {
     try {
       const response = await API.post("/transactions", transactionData);
 
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
 
 // UPDATE TRANSACTION
-export const updateTransaction = createAsyncThunk(
+export const updateTransaction = createAsyncThunk<Transaction, UpdateTransactionPayload>(
   "transactions/update",
-  async ({ id, updatedData }, thunkAPI) => {
+  async ({ id, updatedData }: UpdateTransactionPayload, thunkAPI) => {
     try {
       const response = await API.put(`/transactions/${id}`, updatedData);
 
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
 
 // DELETE TRANSACTION
-export const deleteTransaction = createAsyncThunk(
+export const deleteTransaction = createAsyncThunk<Transaction["id"], Transaction["id"]>(
   "transactions/delete",
-  async (id, thunkAPI) => {
+  async (id: Transaction["id"], thunkAPI) => {
     try {
       await API.delete(`/transactions/${id}`);
 
       return id;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
 
 // GET SUMMARY
-export const getSummary = createAsyncThunk(
+export const getSummary = createAsyncThunk<TransactionSummary, void>(
   "transactions/summary",
   async (_, thunkAPI) => {
     try {
@@ -106,7 +144,7 @@ export const getSummary = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
@@ -165,7 +203,7 @@ const transactionSlice = createSlice({
 
       .addCase(getTransactions.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = String(action.payload);
       })
 
       // ADD

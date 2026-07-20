@@ -1,11 +1,36 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { AxiosError } from "axios";
 
 import API from "../../services/api";
 
-// Get user from localStorage
-const user = JSON.parse(localStorage.getItem("user"));
+type AuthUser = {
+  token?: string;
+  [key: string]: unknown;
+};
 
-const initialState = {
+type AuthCredentials = {
+  email: string;
+  password: string;
+  name?: string;
+};
+
+type AuthState = {
+  user: AuthUser | null;
+  loading: boolean;
+  error: string | null;
+};
+
+const getErrorMessage = (error: unknown) => {
+  const axiosError = error as AxiosError<{ message?: string }>;
+
+  return axiosError.response?.data?.message ?? "Something went wrong";
+};
+
+// Get user from localStorage
+const storedUser = localStorage.getItem("user");
+const user = storedUser ? JSON.parse(storedUser) as AuthUser : null;
+
+const initialState: AuthState = {
   user: user || null,
   loading: false,
   error: null,
@@ -14,7 +39,7 @@ const initialState = {
 // REGISTER
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async (userData, thunkAPI) => {
+  async (userData: AuthCredentials, thunkAPI) => {
     try {
       const response = await API.post("/auth/register", userData);
 
@@ -22,7 +47,7 @@ export const registerUser = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
@@ -30,7 +55,7 @@ export const registerUser = createAsyncThunk(
 // LOGIN
 export const loginUser = createAsyncThunk(
   "auth/login",
-  async (userData, thunkAPI) => {
+  async (userData: AuthCredentials, thunkAPI) => {
     try {
       const response = await API.post("/auth/login", userData);
 
@@ -38,7 +63,7 @@ export const loginUser = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(getErrorMessage(error));
     }
   },
 );
@@ -70,7 +95,7 @@ const authSlice = createSlice({
 
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = String(action.payload);
       })
 
       // LOGIN
@@ -85,7 +110,7 @@ const authSlice = createSlice({
 
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = String(action.payload);
       });
   },
 });
