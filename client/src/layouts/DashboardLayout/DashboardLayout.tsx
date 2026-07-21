@@ -1,27 +1,20 @@
 import { Outlet } from "react-router-dom";
 
+import Navbar from "../../components/layout/Navbar";
+import Sidebar from "../../components/layout/Sidebar";
+
 const DashboardLayout = () => {
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-50">
+      <Sidebar />
 
-      {/* Sidebar */}
-      <aside className="hidden">
-        Sidebar
-      </aside>
+      <div className="lg:ml-72">
+        <Navbar />
 
-      {/* Main Content */}
-      <main>
-        {/* Navbar */}
-        <header>
-          Navbar
-        </header>
-
-        {/* Page */}
-        <section className="p-6">
+        <main className="px-4 py-6 pb-28 sm:px-6 lg:p-8">
           <Outlet />
-        </section>
-      </main>
-
+        </main>
+      </div>
     </div>
   );
 };
