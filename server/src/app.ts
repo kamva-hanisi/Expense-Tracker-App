@@ -11,7 +11,9 @@ export const app = express();
 app.disable("x-powered-by");
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || env.clientUrls.includes(origin)) {
+    const isLocalDevelopmentOrigin = env.nodeEnv !== "production" &&
+      /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin ?? "");
+    if (!origin || env.clientUrls.includes(origin) || isLocalDevelopmentOrigin) {
       callback(null, true);
       return;
     }

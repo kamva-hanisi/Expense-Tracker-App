@@ -16,6 +16,8 @@ import Register from "../../pages/Register";
 import NotFound from "../../pages/NotFound";
 
 import { ROUTES } from "../../constants/routes";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import PublicRoute from "../PublicRoute/PublicRoute";
 
 const AppRouter = () => {
   return (
@@ -23,23 +25,26 @@ const AppRouter = () => {
 
         {/* Public */}
 
-        <Route element={<AuthLayout />}>
+        <Route element={<PublicRoute />}>
+          <Route element={<AuthLayout />}>
 
-          <Route
-            path={ROUTES.LOGIN}
-            element={<Login />}
-          />
+            <Route
+              path={ROUTES.LOGIN}
+              element={<Login />}
+            />
 
-          <Route
-            path={ROUTES.REGISTER}
-            element={<Register />}
-          />
+            <Route
+              path={ROUTES.REGISTER}
+              element={<Register />}
+            />
 
+          </Route>
         </Route>
 
         {/* Private */}
 
-        <Route element={<DashboardLayout />}>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
 
           <Route
             path={ROUTES.HOME}
@@ -81,9 +86,10 @@ const AppRouter = () => {
             element={<Settings />}
           />
 
-          <Route path="*" element={<NotFound />} />
-
+          </Route>
         </Route>
+
+        <Route path="*" element={<NotFound />} />
 
       </Routes>
   );

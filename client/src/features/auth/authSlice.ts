@@ -1,11 +1,18 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 
 import API from "../../services/api";
 
 type AuthUser = {
+  id?: string;
   token?: string;
-  [key: string]: unknown;
+  name?: string;
+  email?: string;
+  phone?: string | null;
+  city?: string | null;
+  avatarData?: string | null;
+  defaultCurrency?: string;
+  monthlyNote?: string;
 };
 
 type AuthCredentials = {
@@ -73,6 +80,11 @@ const authSlice = createSlice({
   initialState,
 
   reducers: {
+    syncProfile: (state, action: PayloadAction<Partial<AuthUser>>) => {
+      if (!state.user) return;
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem("user", JSON.stringify(state.user));
+    },
     logout: (state) => {
       localStorage.removeItem("user");
 
@@ -115,6 +127,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, syncProfile } = authSlice.actions;
 
 export default authSlice.reducer;
