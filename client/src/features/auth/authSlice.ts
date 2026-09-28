@@ -13,6 +13,7 @@ type AuthUser = {
   avatarData?: string | null;
   defaultCurrency?: string;
   monthlyNote?: string;
+  transactionActivityEnabled?: boolean;
 };
 
 type AuthCredentials = {

@@ -23,7 +23,9 @@ export const runMigrations = async () => {
       ADD COLUMN IF NOT EXISTS city VARCHAR(120),
       ADD COLUMN IF NOT EXISTS avatar_data TEXT,
       ADD COLUMN IF NOT EXISTS default_currency VARCHAR(3) NOT NULL DEFAULT 'ZAR',
-      ADD COLUMN IF NOT EXISTS monthly_note TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS monthly_note TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS deactivated_at TIMESTAMPTZ;
 
     DO $$
     BEGIN
@@ -104,6 +106,12 @@ export const runMigrations = async () => {
 
     CREATE INDEX IF NOT EXISTS expense_savings_goals_user_target_idx
       ON expense_savings_goals (user_id, target_date);
+
+    CREATE TABLE IF NOT EXISTS expense_user_settings (
+      user_id BIGINT PRIMARY KEY REFERENCES expense_users(id) ON DELETE CASCADE,
+      transaction_activity_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
   `);
     await client.query("COMMIT");
   } catch (error) {

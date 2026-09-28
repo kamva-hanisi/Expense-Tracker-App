@@ -6,6 +6,7 @@ import { errorHandler, notFound } from "./middleware/errors.js";
 import { authRouter } from "./routes/authRoutes.js";
 import { budgetRouter } from "./routes/budgetRoutes.js";
 import { savingsGoalRouter } from "./routes/savingsGoalRoutes.js";
+import { settingsRouter } from "./routes/settingsRoutes.js";
 import { transactionRouter } from "./routes/transactionRoutes.js";
 
 export const app = express();
@@ -30,6 +31,7 @@ app.get("/api/health", (_request, response) => {
 app.use("/api/auth", authRouter);
 app.use("/api/budgets", budgetRouter);
 app.use("/api/savings-goals", savingsGoalRouter);
+app.use("/api/settings", settingsRouter);
 app.use("/api/transactions", transactionRouter);
 
 app.use(notFound);

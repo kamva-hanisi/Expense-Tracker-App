@@ -28,6 +28,8 @@ select {
 
 html.dark {
   color-scheme: dark;
+  color: #f7faf8;
+  background-color: #101713;
   --color-white: #151c18;
   --color-slate-50: #101713;
   --color-slate-100: #1a241e;
@@ -45,6 +47,24 @@ html.dark {
   --color-emerald-200: #28543a;
   --color-emerald-700: #6ee7b7;
   --color-emerald-800: #a7f3d0;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color: #eef3f0;
+}
+
+html.dark select,
+html.dark select option {
+  background-color: #151c18;
+  color: #eef3f0;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #a9b7ad;
+  opacity: 1;
 }
 
 html.dark .bg-emerald-700 {

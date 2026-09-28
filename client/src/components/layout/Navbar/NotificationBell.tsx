@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Bell, CheckCheck } from "lucide-react";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-import type { RootState } from "../../../app/store";
+import type { AppDispatch, RootState } from "../../../app/store";
+import { syncProfile } from "../../../features/auth/authSlice";
 import API from "../../../services/api";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { formatDate } from "../../../utils/formatDate";
@@ -29,8 +30,11 @@ const getReadIds = (key: string) => {
 };
 
 const NotificationBell = () => {
-  const userId = useSelector((state: RootState) => state.auth.user?.id);
-  const currency = useSelector((state: RootState) => state.auth.user?.defaultCurrency ?? "ZAR");
+  const user = useSelector((state: RootState) => state.auth.user);
+  const userId = user?.id;
+  const currency = user?.defaultCurrency ?? "ZAR";
+  const notificationsEnabled = user?.transactionActivityEnabled ?? true;
+  const dispatch = useDispatch<AppDispatch>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,12 +42,21 @@ const NotificationBell = () => {
   const [transactions, setTransactions] = useState<ActivityTransaction[]>([]);
   const [readIds, setReadIds] = useState<string[]>([]);
   const readKey = `expense-notifications:${userId ?? "guest"}:read`;
-  const unreadCount = transactions.filter((transaction) => !readIds.includes(String(transaction.id))).length;
+  const unreadCount = notificationsEnabled
+    ? transactions.filter((transaction) => !readIds.includes(String(transaction.id))).length
+    : 0;
 
   useEffect(() => {
     setReadIds(getReadIds(readKey));
     setTransactions([]);
   }, [readKey]);
+
+  useEffect(() => {
+    if (!userId) return;
+    API.get<{ transactionActivityEnabled: boolean }>("/settings")
+      .then(({ data }) => dispatch(syncProfile({ transactionActivityEnabled: data.transactionActivityEnabled })))
+      .catch(() => {});
+  }, [dispatch, userId]);
 
   useEffect(() => {
     if (!open) return;
@@ -63,6 +76,7 @@ const NotificationBell = () => {
 
   const loadNotifications = async () => {
     setOpen(true);
+    if (!notificationsEnabled) return;
     setLoading(true);
     setError("");
     try {
@@ -99,7 +113,7 @@ const NotificationBell = () => {
         className="relative rounded-lg border border-slate-200 p-2.5 text-slate-600 transition hover:bg-slate-100"
         type="button"
         title="Notifications"
-        aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}
+        aria-label={!notificationsEnabled ? "Notifications disabled" : unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}
         aria-expanded={open}
         onClick={() => open ? setOpen(false) : void loadNotifications()}
       >
@@ -122,7 +136,9 @@ const NotificationBell = () => {
             )}
           </header>
 
-          {loading ? (
+          {!notificationsEnabled ? (
+            <p className="px-4 py-6 text-center text-sm text-slate-500">In-app transaction activity is disabled in Settings.</p>
+          ) : loading ? (
             <p className="px-4 py-6 text-center text-sm text-slate-500">Loading activity...</p>
           ) : error ? (
             <p className="px-4 py-6 text-center text-sm text-red-600" role="alert">{error}</p>

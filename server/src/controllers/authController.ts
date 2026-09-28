@@ -15,6 +15,7 @@ type UserRow = {
   avatar_data: string | null;
   default_currency: string;
   monthly_note: string;
+  is_active: boolean;
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,6 +35,7 @@ const publicUser = (user: UserRow) => ({
   avatarData: user.avatar_data,
   defaultCurrency: user.default_currency,
   monthlyNote: user.monthly_note,
+  isActive: user.is_active,
   token: createToken(user),
 });
 
@@ -68,7 +70,7 @@ export const register = async (request: Request, response: Response) => {
     `INSERT INTO expense_users (name, email, password_hash)
      VALUES ($1, $2, $3)
      RETURNING id, name, email, password_hash, phone, city, avatar_data,
-       default_currency, monthly_note`,
+       default_currency, monthly_note, is_active`,
     [name, email, passwordHash],
   );
   response.status(201).json(publicUser(result.rows[0]!));
@@ -87,7 +89,7 @@ export const login = async (request: Request, response: Response) => {
 
   const result = await pool.query<UserRow>(
     `SELECT id, name, email, password_hash, phone, city, avatar_data,
-       default_currency, monthly_note
+       default_currency, monthly_note, is_active
      FROM expense_users WHERE email = $1`,
     [email],
   );
@@ -96,13 +98,75 @@ export const login = async (request: Request, response: Response) => {
     response.status(401).json({ message: "Invalid email or password" });
     return;
   }
+  if (!user.is_active) {
+    await pool.query(
+      "UPDATE expense_users SET is_active = TRUE, deactivated_at = NULL, updated_at = NOW() WHERE id = $1",
+      [user.id],
+    );
+    user.is_active = true;
+  }
   response.json(publicUser(user));
+};
+
+const verifyCurrentPassword = async (userId: string, password: unknown) => {
+  if (typeof password !== "string" || !password) return false;
+  const result = await pool.query<{ password_hash: string }>(
+    "SELECT password_hash FROM expense_users WHERE id = $1",
+    [userId],
+  );
+  return result.rows[0] ? bcrypt.compare(password, result.rows[0].password_hash) : false;
+};
+
+export const deactivateAccount = async (request: Request, response: Response) => {
+  if (!(await verifyCurrentPassword(request.user!.id, request.body?.currentPassword))) {
+    response.status(401).json({ message: "Current password is incorrect" });
+    return;
+  }
+  await pool.query(
+    "UPDATE expense_users SET is_active = FALSE, deactivated_at = NOW(), updated_at = NOW() WHERE id = $1",
+    [request.user!.id],
+  );
+  response.status(204).send();
+};
+
+export const permanentlyDeleteAccount = async (request: Request, response: Response) => {
+  if (!(await verifyCurrentPassword(request.user!.id, request.body?.currentPassword))) {
+    response.status(401).json({ message: "Current password is incorrect" });
+    return;
+  }
+  await pool.query("DELETE FROM expense_users WHERE id = $1", [request.user!.id]);
+  response.status(204).send();
+};
+
+export const changePassword = async (request: Request, response: Response) => {
+  const currentPassword = typeof request.body?.currentPassword === "string" ? request.body.currentPassword : "";
+  const newPassword = typeof request.body?.newPassword === "string" ? request.body.newPassword : "";
+  if (!currentPassword || newPassword.length < 8 || newPassword.length > 72) {
+    response.status(400).json({ message: "Enter your current password and a new password of 8 to 72 characters" });
+    return;
+  }
+
+  const result = await pool.query<{ password_hash: string }>(
+    "SELECT password_hash FROM expense_users WHERE id = $1",
+    [request.user!.id],
+  );
+  const user = result.rows[0];
+  if (!user || !(await bcrypt.compare(currentPassword, user.password_hash))) {
+    response.status(401).json({ message: "Current password is incorrect" });
+    return;
+  }
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await pool.query(
+    "UPDATE expense_users SET password_hash = $2, updated_at = NOW() WHERE id = $1",
+    [request.user!.id, passwordHash],
+  );
+  response.status(204).send();
 };
 
 export const me = async (request: Request, response: Response) => {
   const result = await pool.query<UserRow>(
     `SELECT id, name, email, password_hash, phone, city, avatar_data,
-       default_currency, monthly_note
+       default_currency, monthly_note, is_active
      FROM expense_users WHERE id = $1`,
     [request.user!.id],
   );
@@ -160,7 +224,7 @@ export const updateProfile = async (request: Request, response: Response) => {
          default_currency = $7, monthly_note = $8, updated_at = NOW()
      WHERE id = $1
      RETURNING id, name, email, password_hash, phone, city, avatar_data,
-       default_currency, monthly_note`,
+       default_currency, monthly_note, is_active`,
     [request.user!.id, name, email, phone, city, avatarData, defaultCurrency, monthlyNote],
   );
   const user = result.rows[0];
