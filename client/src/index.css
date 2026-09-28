@@ -25,3 +25,40 @@ input,
 select {
   font: inherit;
 }
+
+html.dark {
+  color-scheme: dark;
+  --color-white: #151c18;
+  --color-slate-50: #101713;
+  --color-slate-100: #1a241e;
+  --color-slate-200: #2a3930;
+  --color-slate-300: #405348;
+  --color-slate-400: #91a297;
+  --color-slate-500: #a9b7ad;
+  --color-slate-600: #c1ccc4;
+  --color-slate-700: #d4ded7;
+  --color-slate-800: #e4ece7;
+  --color-slate-900: #eef3f0;
+  --color-slate-950: #f7faf8;
+  --color-emerald-50: #10251a;
+  --color-emerald-100: #183525;
+  --color-emerald-200: #28543a;
+  --color-emerald-700: #6ee7b7;
+  --color-emerald-800: #a7f3d0;
+}
+
+html.dark .bg-emerald-700 {
+  background-color: #065f46;
+}
+
+html.dark .text-emerald-600 {
+  color: #6ee7b7;
+}
+
+html.dark .text-red-600 {
+  color: #fca5a5;
+}
+
+html.dark .text-orange-600 {
+  color: #fdba74;
+}

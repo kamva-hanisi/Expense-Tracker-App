@@ -10,6 +10,7 @@ import App from "./App";
 import "./index.css";
 
 import { store } from "./app/store";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const root = document.getElementById("root");
 
@@ -19,10 +20,12 @@ if (!root) {
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <Provider store={store}>
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </Provider>
+    <ThemeProvider>
+      <Provider store={store}>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </Provider>
+    </ThemeProvider>
   </React.StrictMode>
 );
