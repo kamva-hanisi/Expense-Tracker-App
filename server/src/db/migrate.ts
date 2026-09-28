@@ -1,7 +1,11 @@
 import { pool } from "../config/database.js";
 
 export const runMigrations = async () => {
-  await pool.query(`
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(726014832)");
+    await client.query(`
     CREATE TABLE IF NOT EXISTS expense_users (
       id BIGSERIAL PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
@@ -10,6 +14,38 @@ export const runMigrations = async () => {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    ALTER TABLE expense_users
+      ADD COLUMN IF NOT EXISTS name VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'expense_users' AND column_name = 'username'
+      ) THEN
+        EXECUTE 'UPDATE expense_users SET name = username WHERE name IS NULL';
+      END IF;
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'expense_users' AND column_name = 'password'
+      ) THEN
+        EXECUTE 'UPDATE expense_users SET password_hash = password WHERE password_hash IS NULL';
+        EXECUTE 'ALTER TABLE expense_users ALTER COLUMN password DROP NOT NULL';
+      END IF;
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'expense_users' AND column_name = 'username'
+      ) THEN
+        EXECUTE 'ALTER TABLE expense_users ALTER COLUMN username DROP NOT NULL';
+      END IF;
+    END $$;
+
+    ALTER TABLE expense_users
+      ALTER COLUMN name SET NOT NULL,
+      ALTER COLUMN password_hash SET NOT NULL;
 
     CREATE TABLE IF NOT EXISTS expense_transactions (
       id BIGSERIAL PRIMARY KEY,
@@ -24,7 +60,23 @@ export const runMigrations = async () => {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    ALTER TABLE expense_transactions
+      ADD COLUMN IF NOT EXISTS transaction_date DATE NOT NULL DEFAULT CURRENT_DATE;
+
+    ALTER TABLE expense_transactions
+      ADD COLUMN IF NOT EXISTS completed BOOLEAN NOT NULL DEFAULT FALSE;
+
+    ALTER TABLE expense_transactions
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
     CREATE INDEX IF NOT EXISTS expense_transactions_user_date_idx
       ON expense_transactions (user_id, transaction_date DESC, created_at DESC);
   `);
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
