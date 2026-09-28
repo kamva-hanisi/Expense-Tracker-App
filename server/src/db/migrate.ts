@@ -89,6 +89,21 @@ export const runMigrations = async () => {
 
     CREATE INDEX IF NOT EXISTS expense_budgets_user_category_idx
       ON expense_budgets (user_id, category);
+
+    CREATE TABLE IF NOT EXISTS expense_savings_goals (
+      id BIGSERIAL PRIMARY KEY,
+      user_id BIGINT NOT NULL REFERENCES expense_users(id) ON DELETE CASCADE,
+      name VARCHAR(120) NOT NULL,
+      target_amount NUMERIC(14, 2) NOT NULL CHECK (target_amount > 0),
+      saved_amount NUMERIC(14, 2) NOT NULL DEFAULT 0 CHECK (saved_amount >= 0),
+      target_date DATE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (user_id, name)
+    );
+
+    CREATE INDEX IF NOT EXISTS expense_savings_goals_user_target_idx
+      ON expense_savings_goals (user_id, target_date);
   `);
     await client.query("COMMIT");
   } catch (error) {
