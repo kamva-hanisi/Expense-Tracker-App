@@ -188,6 +188,10 @@ const transactionSlice = createSlice({
       // GET
       .addCase(getTransactions.pending, (state) => {
         state.loading = true;
+        state.error = null;
+        state.transactions = [];
+        state.filteredTransactions = [];
+        state.summary = {};
       })
 
       .addCase(getTransactions.fulfilled, (state, action) => {
