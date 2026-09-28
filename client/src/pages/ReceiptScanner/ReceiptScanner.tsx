@@ -184,7 +184,12 @@ const ReceiptScanner = () => {
     let terminateWorker: (() => Promise<unknown>) | undefined;
     try {
       const { createWorker } = await import("tesseract.js");
+      const ocrAssets = `${import.meta.env.BASE_URL}ocr/`;
       const worker = await createWorker("eng", 1, {
+        workerPath: `${ocrAssets}worker.min.js`,
+        corePath: `${ocrAssets}tesseract-core.wasm.js`,
+        langPath: ocrAssets,
+        gzip: true,
         logger: ({ status, progress }) => {
           setScanStatus(status);
           setScanProgress(Math.round(progress * 100));
