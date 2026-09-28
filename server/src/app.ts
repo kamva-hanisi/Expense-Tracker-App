@@ -4,6 +4,7 @@ import express from "express";
 import { env } from "./config/env.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { authRouter } from "./routes/authRoutes.js";
+import { budgetRouter } from "./routes/budgetRoutes.js";
 import { transactionRouter } from "./routes/transactionRoutes.js";
 
 export const app = express();
@@ -26,6 +27,7 @@ app.get("/api/health", (_request, response) => {
   response.json({ status: "ok" });
 });
 app.use("/api/auth", authRouter);
+app.use("/api/budgets", budgetRouter);
 app.use("/api/transactions", transactionRouter);
 
 app.use(notFound);
