@@ -112,6 +112,22 @@ export const runMigrations = async () => {
       transaction_activity_enabled BOOLEAN NOT NULL DEFAULT TRUE,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS expense_receipts (
+      id BIGSERIAL PRIMARY KEY,
+      user_id BIGINT NOT NULL REFERENCES expense_users(id) ON DELETE CASCADE,
+      transaction_id BIGINT REFERENCES expense_transactions(id) ON DELETE SET NULL,
+      file_name VARCHAR(255) NOT NULL,
+      merchant VARCHAR(150) NOT NULL,
+      amount NUMERIC(14, 2) NOT NULL CHECK (amount >= 0),
+      category VARCHAR(100) NOT NULL,
+      receipt_date DATE NOT NULL,
+      image_data TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS expense_receipts_user_created_idx
+      ON expense_receipts (user_id, created_at DESC);
   `);
     await client.query("COMMIT");
   } catch (error) {

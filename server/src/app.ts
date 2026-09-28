@@ -7,6 +7,7 @@ import { authRouter } from "./routes/authRoutes.js";
 import { budgetRouter } from "./routes/budgetRoutes.js";
 import { savingsGoalRouter } from "./routes/savingsGoalRoutes.js";
 import { settingsRouter } from "./routes/settingsRoutes.js";
+import { receiptRouter } from "./routes/receiptRoutes.js";
 import { transactionRouter } from "./routes/transactionRoutes.js";
 
 export const app = express();
@@ -23,7 +24,7 @@ app.use(cors({
     callback(new Error("Origin is not allowed by CORS"));
   },
 }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_request, response) => {
   response.json({ status: "ok" });
@@ -32,6 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/budgets", budgetRouter);
 app.use("/api/savings-goals", savingsGoalRouter);
 app.use("/api/settings", settingsRouter);
+app.use("/api/receipts", receiptRouter);
 app.use("/api/transactions", transactionRouter);
 
 app.use(notFound);
